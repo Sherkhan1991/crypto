@@ -1,0 +1,8 @@
+# Ignore everything
+/*
+
+# Not these directories
+!crypto/
+
+# Not these files
+!.gitignore
