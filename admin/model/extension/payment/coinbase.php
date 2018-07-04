@@ -21,8 +21,8 @@ class ModelExtensionPaymentCoinbase extends Model
         $settings['payment_coinbase_order_status_id'] = 1;
         $settings['payment_coinbase_completed_status_id'] = 2;
         $settings['payment_coinbase_confirmed_status_id'] = 2;
-        $settings['payment_coinbase_underpayment_status_id'] = 1;
-        $settings['payment_coinbase_invalid_status_id'] = 10;
+        $settings['payment_coinbase_underpayment_status_id'] = 8;
+        $settings['payment_coinbase_invalid_status_id'] = 8;
         $settings['payment_coinbase_expired_status_id'] = 14;
         $settings['payment_coinbase_canceled_status_id'] = 7;
 
