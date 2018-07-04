@@ -1,12 +1,22 @@
-# Ignore everything
-/*
+#
+# If all files excluded and you will include only specific sub-directories
+# the parent path must matched before.
 
-# Not these directories
-!view/image/payment/coinbase/
+# Un-ignore the affected subdirectory
+!/
+!/admin/
+!/catalog/
 
-# Not these files
+# Ignore subdirectory and all including directories and files to match pattern as valid for the next pattern
+/**
+/admin/**
+/catalog/**
+
+# This pattern only works with the two previous patterns
+# (i remember it was working alone on older git versions)
+!/admin/controller/extension/payment/
+!/admin/language/en-gb/extension/payment/
+!/admin/model/extension/payment/
+!/admin/view/template/extension/payment/
+
 !.gitignore
-!admin/controller/extension/payment/coinbase.php
-!admin/language/en-gb/extension/payment/coinbase.php
-!admin/model/extension/payment/coinbase.php
-!admin/view/template/extension/payment/coinbase.twig
