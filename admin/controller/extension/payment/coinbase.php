@@ -1,8 +1,5 @@
 <?php
 
-//require_once(DIR_SYSTEM . 'library/coinbase/coinbaseclient/init.php');
-//require_once(DIR_SYSTEM . 'library/coinbase/coinbase_version.php');
-
 class ControllerExtensionPaymentCoinbase extends Controller
 {
     private $error = array();
@@ -124,24 +121,6 @@ class ControllerExtensionPaymentCoinbase extends Controller
             empty($this->request->post['payment_coinbase_api_secret'])) {
             $this->error['api_secret'] = $this->language->get('error_api_secret');
         }
-/*
-        if (!$this->error) {
-            $tbcClient = new \coinbaseClient\coinbaseClient(
-                array(
-                    'project_id' => $this->request->post['payment_coinbase_project_id'],
-                    'api_key' => $this->request->post['payment_coinbase_api_key'],
-                    'api_secret' => $this->request->post['payment_coinbase_api_secret'],
-                    'env' => ($this->request->post['payment_coinbase_api_test_mode'] ? 'test' : 'live'),
-                    'user_agent' =>
-                        'CoinBase OpenCart Extension: ' . CoinBase_OPENCART_EXTENSION_VERSION . '/' . 'OpenCart: ' . VERSION
-                )
-            );
-
-            $test_api = $tbcClient->testApi();
-            if (false === isset($test_api['test']) && !$test_api['test']['status']) {
-                $this->error['warning'] = $this->language->get('error_api_status_inactive');
-            }
-        } */
 
         return !$this->error;
     }
