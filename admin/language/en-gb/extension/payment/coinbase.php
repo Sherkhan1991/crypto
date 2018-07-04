@@ -1,10 +1,10 @@
 <?php
 
-$_['heading_title'] = 'CoinBase';
+$_['heading_title'] = 'CoinBase Commerce';
 
 $_['text_extension'] = 'Extensions';
-$_['text_edit_heading'] = 'Edit CoinBase';
-$_['text_success'] = ' Success: You have modified CoinBase payment details!';
+$_['text_edit_heading'] = 'Edit CoinBase Commerce';
+$_['text_success'] = ' Success: You have updated CoinBase payment details!';
 $_['text_api_test_mode_yes'] = 'Yes';
 $_['text_api_test_mode_no'] = 'No';
 $_['text_api_credentials_section'] = 'API credentials';
@@ -34,15 +34,14 @@ $_['entry_invalid_status'] = 'Invalid Status';
 $_['entry_expired_status'] = 'Expired Status';
 $_['entry_canceled_status'] = 'Canceled Status';
 
-$_['help_project_id'] = 'Please enter your CoinBase Project ID.';
-$_['help_api_key'] = 'Please enter your CoinBase API Key.';
-$_['help_api_secret'] = 'Please enter your CoinBase API Secret.';
+$_['help_project_id'] = 'Please enter your CoinBase Commerce Project ID.';
+$_['help_api_key'] = 'Please enter your CoinBase Commerce API Key.';
+$_['help_api_secret'] = 'Please enter your CoinBase Commerce API Secret.';
 $_['help_total'] = 'The checkout total the order must reach before this payment method becomes active.';
-$_['help_api_test_mode'] = 'You can use CoinBase test API. Find out more about the <a href="https://commerce.coinbase.com/docs/api/" target="_blank">CoinBase test API</a>.';
+$_['help_api_test_mode'] = 'You can use CoinBase Commerce test API. Find out more about the <a href="https://commerce.coinbase.com/docs/api/" target="_blank">CoinBase test API</a>.';
 
-$_['error_permission'] = 'Warning: You do not have permission to modify CoinBase!';
-$_['error_coinbase_client'] = 'Unable to load CoinBaseClient.';
-$_['error_project_id'] = 'CoinBase Project ID Required.';
-$_['error_api_key'] = 'CoinBase API Key Required.';
-$_['error_api_secret'] = 'CoinBase API Secret ID Required.';
-$_['error_api_status_inactive'] = 'Could not connect CoinBase API.';
+$_['error_permission'] = 'Warning: You do not have permission to modify CoinBase Commerce!';
+$_['error_project_id'] = 'CoinBase Commerce Project ID Required.';
+$_['error_api_key'] = 'CoinBase Commerce API Key Required.';
+$_['error_api_secret'] = 'CoinBase Commerce API Secret ID Required.';
+$_['error_api_status_inactive'] = 'Could not connect CoinBase Commerce API.';
