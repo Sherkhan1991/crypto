@@ -2,7 +2,11 @@
 /*
 
 # Not these directories
-!crypto/
+!view/image/payment/coinbase/
 
 # Not these files
 !.gitignore
+!admin/controller/extension/payment/coinbase.php
+!admin/language/en-gb/extension/payment/coinbase.php
+!admin/model/extension/payment/coinbase.php
+!admin/view/template/extension/payment/coinbase.twig
