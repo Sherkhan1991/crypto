@@ -14,7 +14,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
         $this->load->model('localisation/geo_zone');
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->model_setting_setting->editSetting('payment_coinbase', $this->request->post);
+            $this->model_setting_setting->editSetting('coinbase_commerce', $this->request->post);
             $this->session->data['success'] = $this->language->get('text_success');
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
         }
@@ -28,12 +28,6 @@ class ControllerExtensionPaymentCoinbase extends Controller
             $data['error_warning'] = $this->error['warning'];
         } else {
             $data['error_warning'] = '';
-        }
-
-        if (isset($this->error['project_id'])) {
-            $data['error_project_id'] = $this->error['project_id'];
-        } else {
-            $data['error_project_id'] = '';
         }
 
         if (isset($this->error['api_key'])) {
@@ -63,21 +57,18 @@ class ControllerExtensionPaymentCoinbase extends Controller
         );
 
         $fields = array(
-            'payment_coinbase_status',
-            'payment_coinbase_project_id',
-            'payment_coinbase_api_key',
-            'payment_coinbase_api_secret',
-            'payment_coinbase_api_test_mode',
-            'payment_coinbase_order_status_id',
-            'payment_coinbase_completed_status_id',
-            'payment_coinbase_confirmed_status_id',
-            'payment_coinbase_underpayment_status_id',
-            'payment_coinbase_invalid_status_id',
-            'payment_coinbase_expired_status_id',
-            'payment_coinbase_canceled_status_id',
-            'payment_coinbase_geo_zone_id',
-            'payment_coinbase_total',
-            'payment_coinbase_sort_order'
+            'coinbase_commerce_extension_status',
+            'coinbase_commerce_api_key',
+            'coinbase_commerce_api_secret',
+            'coinbase_commerce_api_test_mode',
+            'coinbase_commerce_order_status_id',
+            'coinbase_commerce_completed_status_id',
+            'coinbase_commerce_resolved_status_id',
+            'coinbase_commerce_unresolved_status_id',
+            'coinbase_commerce_expired_status_id',
+            'coinbase_commerce_geo_zone_id',
+            'coinbase_commerce_total',
+            'coinbase_commerce_sort_order'
         );
 
         foreach ($fields as $field) {
@@ -103,22 +94,13 @@ class ControllerExtensionPaymentCoinbase extends Controller
             $this->error['warning'] = $this->language->get('error_permission');
         }
 
-        /*if (!class_exists('\coinbaseClient\coinbaseClient')) {
-            $this->error['warning'] = $this->language->get('error_coinbase_client');
-        } */
-
-        if (!$this->request->post['payment_coinbase_project_id'] ||
-            empty($this->request->post['payment_coinbase_project_id'])) {
-            $this->error['project_id'] = $this->language->get('error_project_id');
-        }
-
-        if (!$this->request->post['payment_coinbase_api_key'] ||
-            empty($this->request->post['payment_coinbase_api_key'])) {
+        if (!$this->request->post['coinbase_commerce_api_key'] ||
+            empty($this->request->post['coinbase_commerce_api_key'])) {
             $this->error['api_key'] = $this->language->get('error_api_key');
         }
 
-        if (!$this->request->post['payment_coinbase_api_secret'] ||
-            empty($this->request->post['payment_coinbase_api_secret'])) {
+        if (!$this->request->post['coinbase_commerce_api_secret'] ||
+            empty($this->request->post['coinbase_commerce_api_secret'])) {
             $this->error['api_secret'] = $this->language->get('error_api_secret');
         }
 
