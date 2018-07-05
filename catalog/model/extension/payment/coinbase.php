@@ -4,12 +4,12 @@ class ModelExtensionPaymentCoinbase extends Model
 {
     public function addOrder($data)
     {
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "coinbase_order` SET `order_id` = '" . (int)$data['order_id'] . "', `coinbase_secret_key` = '" . $this->db->escape($data['secret_key']) . "', `coinbase_payment_id` = '" . $this->db->escape($data['coinbase_payment_id']) . "'");
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "coinbase_commerce_order` SET `store_order_id` = '" . (int)$data['store_order_id'] . "', `store_total_amount` = '" . $this->db->escape($data['store_total_amount']) . "', `coinbase_commerce_charge_code` = '" . $this->db->escape($data['coinbase_commerce_charge_code']) . "', `coinbase_commerce_status` = '" . $this->db->escape($data['coinbase_commerce_status']) . "'");
     }
 
     public function getOrder($order_id)
     {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "coinbase_order` WHERE `order_id` = '" . (int)$order_id . "' LIMIT 1");
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "coinbase_commerce_order` WHERE `store_order_id` = '" . (int)store_order_id . "' LIMIT 1");
 
         return $query->row;
     }
@@ -18,11 +18,11 @@ class ModelExtensionPaymentCoinbase extends Model
     {
         $this->load->language('extension/payment/coinbase');
 
-        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('payment_coinbase_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
+        $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('coinbase_commerce_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 
-        if ($this->config->get('payment_coinbase_total') > 0 && $this->config->get('payment_coinbase_total') > $total) {
+        if ($this->config->get('coinbase_commerce_total') > 0 && $this->config->get('coinbase_commerce_total') > $total) {
             $status = false;
-        } elseif (!$this->config->get('payment_coinbase_geo_zone_id')) {
+        } elseif (!$this->config->get('coinbase_commerce_geo_zone_id')) {
             $status = true;
         } elseif ($query->num_rows) {
             $status = true;
@@ -34,10 +34,10 @@ class ModelExtensionPaymentCoinbase extends Model
 
         if ($status) {
             $method_data = array(
-                'code' => 'coinbase',
+                'code' => 'Coinbase Commerce',
                 'title' => $this->language->get('text_title'),
                 'terms' => '',
-                'sort_order' => $this->config->get('payment_coinbase_sort_order')
+                'sort_order' => $this->config->get('coinbase_commerce_sort_order')
             );
         }
 

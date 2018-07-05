@@ -21,7 +21,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
         $this->load->model('extension/payment/coinbase');
 
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
-        $secret_key = md5(uniqid(rand(), true));
+        //$secret_key = md5(uniqid(rand(), true));
 
         //Pricing
         $pricing["amount"] = $order_info['total'];
@@ -40,20 +40,29 @@ class ControllerExtensionPaymentCoinbase extends Controller
             "local_price" => $pricing,
             "pricing_type" => "fixed_price",
             "metadata" => $metaData,
-            "redirect_url" => $this->url->link('extension/payment/coinbase/redirect', array('tbc_secret_key' => $secret_key), true),
+            "redirect_url" => $this->url->link('extension/payment/coinbase/redirect', true)
         ]);
 
-        //Send Curl Request
+        //Receive Curl Response
         $result = $this->getCurlResponse($data);
         //var_dump($result);
        //exit();
         if($result) {
+
+            //Fetch Expected Price
         $this->model_extension_payment_coinbase->addOrder(array(
-            'order_id' => $order_info['order_id'],
-            'secret_key' => $secret_key,
-            'coinbase_payment_id' => $result['data']['code']
+            'store_order_id' => $order_info['order_id'],
+            'store_total_amount' => $order_info['total'],
+            'coinbase_commerce_charge_code' => $result['data']['code'],
+            //'coinbase_commerce_transaction_id' => $result['payments']['transaction_id'],
+            'coinbase_commerce_status' => $result['timeline']['status']
+            //'coinbase_commerce_coins_expected' => $result['data']['pricing']['amount'], //Need to add logic after pricing
+            //'coinbase_commerce_coins_received' => $result['payments']['value']['local']['amount'],
+            //'coinbase_commerce_received_currency' => $result['payments']['value']['local']['currency']
         ));
-        $this->model_checkout_order->addOrderHistory($order_info['order_id'], $this->config->get('payment_coinbase_order_status_id'));
+        $this->model_checkout_order->addOrderHistory($order_info['order_id'], $this->config->get('coinbase_commerce_order_status_id'));
+            //var_dump($result);
+            //exit();
         $this->response->redirect($result['data']['hosted_url']);
         } else {
             $this->log->write("Order #" . $order_info['order_id'] . " is not valid. Please check Coinbase Commerce API request logs.");
@@ -87,78 +96,78 @@ class ControllerExtensionPaymentCoinbase extends Controller
 
     public function callback()
     {
+        //Read Input
+        //$input = $this->file->read('php://input');
+
+        //Dummy Response Data
+        $new = '{"attempt_number":1,"event":{"api_version":"2018-03-22","created_at":"2018-05-25T07:20:56Z","data":{"code":"N2N9HJM3","name":"Your Store","pricing":{"local":{"amount":"131.20","currency":"USD"},"bitcoin":{"amount":"0.00000270","currency":"BTC"},"ethereum":{"amount":"0.000034000","currency":"ETH"},"litecoin":{"amount":"0.00016785","currency":"LTC"},"bitcoincash":{"amount":"0.00001993","currency":"BCH"}},"metadata":{"id":"0","customer_name":"Mr.tester Amin","customer_email":"arslanaziz@appsgenii.eu","store_increment_id":"19"},"payments":[],"timeline":[{"time":"2018-05-25T07:20:55Z","status":"NEW"}],"addresses":{"bitcoin":"14Me4JXRQ7fK7XFLLL1LMwUQ5KXczfPXKR","ethereum":"0x1054e2f85cb4150e257dc1bad075faa8791064b3","litecoin":"LUVzEJSzYDwsMu7ddyayKarpzxmqEKr5SN","bitcoincash":"qqefm48ttp8hl2rn02ldkt9yttusssfd2q5cjaq343"},"created_at":"2018-05-25T07:20:55Z","expires_at":"2018-05-25T07:35:55Z","hosted_url":"https://commerce.coinbase.com/charges/ZWJGYHBL","description":"Purchased through Coinbase Commerce","pricing_type":"fixed_price","redirect_url":"http://coinbase.stagingbuilds.com/coinbasecommerce/webhook/redirect/"},"id":"9e6d3666-389b-4b64-93ec-0928ba710a4f","type":"charge:created"},"id":"c3ad5df4-d054-4bfd-b3a8-023579527c79","scheduled_for":"2018-05-25T07:20:56Z"}';
+        $underPaid = '{   "attempt_number": 1,   "event": {     "api_version": "2018-03-22",     "created_at": "2018-05-25T07:20:56Z",     "data": {       "code": "N2N9HJM3",       "name": "Your Store",       "pricing": {         "local": {           "amount": "131.20",           "currency": "USD"         },         "bitcoin": {           "amount": "0.00000270",           "currency": "BTC"         },         "ethereum": {           "amount": "0.000034000",           "currency": "ETH"         },         "litecoin": {           "amount": "0.00016785",           "currency": "LTC"         },         "bitcoincash": {           "amount": "0.00001993",           "currency": "BCH"         }       },       "metadata": {         "id": "0",         "customer_name": "Mr.tester Amin",         "customer_email": "arslanaziz@appsgenii.eu",         "store_increment_id": "19"       },       "payments": [                ],       "timeline": [         {           "time": "2018-05-25T07:20:55Z",           "status": "UNRESOLVED",           "context": "UNDERPAID"         }       ],       "addresses": {         "bitcoin": "14Me4JXRQ7fK7XFLLL1LMwUQ5KXczfPXKR",         "ethereum": "0x1054e2f85cb4150e257dc1bad075faa8791064b3",         "litecoin": "LUVzEJSzYDwsMu7ddyayKarpzxmqEKr5SN",         "bitcoincash": "qqefm48ttp8hl2rn02ldkt9yttusssfd2q5cjaq343"       },       "created_at": "2018-05-25T07:20:55Z",       "expires_at": "2018-05-25T07:35:55Z",       "hosted_url": "https://commerce.coinbase.com/charges/ZWJGYHBL",       "description": "Purchased through Coinbase Commerce",       "pricing_type": "fixed_price",       "redirect_url": "http://coinbase.stagingbuilds.com/coinbasecommerce/webhook/redirect/"     },     "id": "9e6d3666-389b-4b64-93ec-0928ba710a4f",     "type": "charge:failed"   },   "id": "c3ad5df4-d054-4bfd-b3a8-023579527c79",   "scheduled_for": "2018-05-25T07:20:56Z" }';
+        $resolved = '{"attempt_number":1,"event":{"api_version":"2018-03-22","created_at":"2018-05-25T07:20:56Z","data":{"code":"N2N9HJM3","name":"Your Store","pricing":{"local":{"amount":"131.20","currency":"USD"},"bitcoin":{"amount":"0.00000270","currency":"BTC"},"ethereum":{"amount":"0.000034000","currency":"ETH"},"litecoin":{"amount":"0.00016785","currency":"LTC"},"bitcoincash":{"amount":"0.00001993","currency":"BCH"}},"metadata":{"id":"0","customer_name":"Mr.tester Amin","customer_email":"arslanaziz@appsgenii.eu","store_increment_id":"21"},"payments":[],"timeline":[{"time":"2018-05-25T07:20:55Z","status":"RESOLVED"}],"addresses":{"bitcoin":"14Me4JXRQ7fK7XFLLL1LMwUQ5KXczfPXKR","ethereum":"0x1054e2f85cb4150e257dc1bad075faa8791064b3","litecoin":"LUVzEJSzYDwsMu7ddyayKarpzxmqEKr5SN","bitcoincash":"qqefm48ttp8hl2rn02ldkt9yttusssfd2q5cjaq343"},"created_at":"2018-05-25T07:20:55Z","expires_at":"2018-05-25T07:35:55Z","hosted_url":"https://commerce.coinbase.com/charges/ZWJGYHBL","description":"Purchased through Coinbase Commerce","pricing_type":"fixed_price","redirect_url":"http://coinbase.stagingbuilds.com/coinbasecommerce/webhook/redirect/"},"id":"9e6d3666-389b-4b64-93ec-0928ba710a4f","type":"charge:confirmed"},"id":"c3ad5df4-d054-4bfd-b3a8-023579527c79","scheduled_for":"2018-05-25T07:20:56Z"}';
+        $expired = '{"attempt_number":1,"event":{"api_version":"2018-03-22","created_at":"2018-05-25T07:20:56Z","data":{"code":"N2N9HJM3","name":"Your Store","pricing":{"local":{"amount":"131.20","currency":"USD"},"bitcoin":{"amount":"0.00000270","currency":"BTC"},"ethereum":{"amount":"0.000034000","currency":"ETH"},"litecoin":{"amount":"0.00016785","currency":"LTC"},"bitcoincash":{"amount":"0.00001993","currency":"BCH"}},"metadata":{"id":"0","customer_name":"Mr.tester Amin","customer_email":"arslanaziz@appsgenii.eu","store_increment_id":"21"},"payments":[],"timeline":[{"time":"2018-05-25T07:20:55Z","status":"EXPIRED"}],"addresses":{"bitcoin":"14Me4JXRQ7fK7XFLLL1LMwUQ5KXczfPXKR","ethereum":"0x1054e2f85cb4150e257dc1bad075faa8791064b3","litecoin":"LUVzEJSzYDwsMu7ddyayKarpzxmqEKr5SN","bitcoincash":"qqefm48ttp8hl2rn02ldkt9yttusssfd2q5cjaq343"},"created_at":"2018-05-25T07:20:55Z","expires_at":"2018-05-25T07:35:55Z","hosted_url":"https://commerce.coinbase.com/charges/ZWJGYHBL","description":"Purchased through Coinbase Commerce","pricing_type":"fixed_price","redirect_url":"http://coinbase.stagingbuilds.com/coinbasecommerce/webhook/redirect/"},"id":"9e6d3666-389b-4b64-93ec-0928ba710a4f","type":"charge:failed"},"id":"c3ad5df4-d054-4bfd-b3a8-023579527c79","scheduled_for":"2018-05-25T07:20:56Z"}';
+        $completed = '{"attempt_number":1,"event":{"api_version":"2018-03-22","created_at":"2018-05-25T07:20:56Z","data":{"code":"N2N9HJM3","name":"Your Store","pricing":{"local":{"amount":"131.20","currency":"USD"},"bitcoin":{"amount":"0.00000270","currency":"BTC"},"ethereum":{"amount":"0.000034000","currency":"ETH"},"litecoin":{"amount":"0.00016785","currency":"LTC"},"bitcoincash":{"amount":"0.00001993","currency":"BCH"}},"metadata":{"id":"0","customer_name":"Mr.tester Amin","customer_email":"arslanaziz@appsgenii.eu","store_increment_id":"21"},"payments":[],"timeline":[{"time":"2018-05-25T07:20:55Z","status":"COMPLETED"}],"addresses":{"bitcoin":"14Me4JXRQ7fK7XFLLL1LMwUQ5KXczfPXKR","ethereum":"0x1054e2f85cb4150e257dc1bad075faa8791064b3","litecoin":"LUVzEJSzYDwsMu7ddyayKarpzxmqEKr5SN","bitcoincash":"qqefm48ttp8hl2rn02ldkt9yttusssfd2q5cjaq343"},"created_at":"2018-05-25T07:20:55Z","expires_at":"2018-05-25T07:35:55Z","hosted_url":"https://commerce.coinbase.com/charges/ZWJGYHBL","description":"Purchased through Coinbase Commerce","pricing_type":"fixed_price","redirect_url":"http://coinbase.stagingbuilds.com/coinbasecommerce/webhook/redirect/"},"id":"9e6d3666-389b-4b64-93ec-0928ba710a4f","type":"charge:confirmed"},"id":"c3ad5df4-d054-4bfd-b3a8-023579527c79","scheduled_for":"2018-05-25T07:20:56Z"}';
+
+        $input = $underPaid;
+        /*
+        if (!$this->authenticate($input)) {
+            return null;
+        }
+        */
+
+        //Retrieve Order Details
+        $jsonInput = json_decode($input);
+
+        $data['incrementId'] = $jsonInput->event->data->metadata->store_increment_id;
+        $data['chargeCode'] = $jsonInput->event->data->code;
+        $data['type'] = $jsonInput->event->type;
+        $data['timeline'] = end($jsonInput->event->data->timeline);
+        $data['coinbaseStatus'] = end($jsonInput->event->data->timeline)->status;
+        $data['coinbasePayment'] = reset($jsonInput->event->data->payments);
+        $data['eventDataNode'] = $jsonInput->event->data;
+
         $this->load->model('checkout/order');
         $this->load->model('extension/payment/coinbase');
 
-        $order_id = isset($this->request->post['order_id']) ? $this->request->post['order_id'] : false;
-        if ($order_id) {
-            $order_info = $this->model_checkout_order->getOrder($order_id);
-            $coinbase_order = $this->model_extension_payment_coinbase->getOrder($order_id);
+        $order_id = $data['incrementId'];
+        //print_r($order_id);
+        //exit();
 
-            if ($order_info && $coinbase_order) {
-                if (strcmp($coinbase_order['coinbase_secret_key'], $this->request->get['tbc_secret_key']) === 0) {
-                    $tbcClient = new \CoinBaseClient\CoinBaseClient(
-                        array(
-                            'project_id' => $this->config->get('payment_coinbase_project_id'),
-                            'api_key' => $this->config->get('payment_coinbase_api_key'),
-                            'api_secret' => $this->config->get('payment_coinbase_api_secret'),
-                            'env' => $this->config->get('payment_coinbase_api_test_mode') == 1 ? 'test' : 'live',
-                            'user_agent' =>
-                                'CoinBase OpenCart Extension: ' . COINBASE_OPENCART_EXTENSION_VERSION . '/' . 'OpenCart: ' . VERSION
-                        )
-                    );
+        $order_info = $this->model_checkout_order->getOrder($order_id);
+        $coinbase_order = $this->model_extension_payment_coinbase->getOrder($order_id);
+        //var_dump($coinbase_order);
+        //exit();
 
-                    $payment = $tbcClient->getPayment($coinbase_order['coinbase_payment_id']);
-                    if (false === isset($payment) || !$payment || empty($payment)) {
-                        $this->log->write('CoinBase: Payment data not found. Order ID: ' . $order_id . ', Payment ID: ' . $coinbase_order['coinbase_payment_id']);
-                    } else {
-                        $payment_status = $payment['data']['payment_status'];
-                        $order_status = NULL;
-                        $status_message = '';
+        if ($order_info && $coinbase_order) {
+            //Replace with authentication
 
-                        if (((float)$order_info['total'] * $this->currency->getvalue($order_info['currency_code'])) > ((float)$payment['data']['amount'])) {
-                            $order_status = 'payment_coinbase_invalid_status_id';
-                            $status_message = 'Coinbase: Payment invalid.';
-                        } else {
-                            switch ($payment_status) {
-                                case 'completed':
-                                    $order_status = 'payment_coinbase_completed_status_id';
-                                    $status_message = 'Coinbase: Payment completed.';
-                                    break;
-                                case 'confirmed':
-                                    $order_status = 'payment_coinbase_confirmed_status_id';
-                                    $status_message = 'Coinbase: Payment confirmed. Awaiting network confirmation and payment completed status.';
-                                    break;
-                                case 'underpayment':
-                                    $order_status = 'payment_coinbase_underpayment_status_id';
-                                    $status_message = 'Coinbase: Payment has been underpaid.';
-                                    break;
-                                case 'invalid':
-                                    $order_status = 'payment_coinbase_invalid_status_id';
-                                    $status_message = 'Coinbase: Payment is invalid for this order.';
-                                    break;
-                                case 'expired':
-                                    $order_status = 'payment_coinbase_expired_status_id';
-                                    $status_message = 'Coinbase: Payment has expired.';
-                                    break;
-                                case 'canceled':
-                                    $order_status = 'payment_coinbase_canceled_status_id';
-                                    $status_message = 'Coinbase: Payment was canceled.';
-                                    break;
-                            }
-                        }
+            $status = $data['coinbaseStatus']; // COMPLETED etc
+            $event = $data['type']; //Charge: Created/ etc
+            $order_status = NULL;
 
-                        if ($order_status) {
-                            $this->model_checkout_order->addOrderHistory(
-                                $order_id,
-                                $this->config->get($order_status),
-                                $status_message
-                            );
-                        } else {
-                            $this->log->write('Coinbase: Unknown payment status');
-                        }
-                    }
-                }
+            if ($status == 'COMPLETED' && $event == 'charge:confirmed') {
+                $order_status = 'coinbase_completed_status_id';  //Processing
+            } elseif ($status == 'RESOLVED') {
+                $order_status = 'coinbase_resolved_status_id'; //Complete
+            } elseif ($status == 'UNRESOLVED') {
+                $order_status = 'coinbase_unresolved_status_id'; //Denied
+                $context = $data['timeline']->context;
+            } elseif ($event == 'charge:failed' && $status == 'EXPIRED') {
+                $order_status = 'coinbase_expired_status_id'; //Expired
+                $context = $data['timeline']->context;
+            }
+
+            $status_message = 'Coinbase: Payment ' . $data['coinbaseStatus'] . isset($context) ? $context : ''  ;
+            $this->log->write('Coinbase Commerce: Order Status ' . $order_status);
+            $this->log->write('Coinbase Commerce: Status Message ' . $status_message);
+
+            if ($order_status) {
+                $this->model_checkout_order->addOrderHistory(
+                    $order_id,
+                    $this->config->get($order_status),
+                    $status_message
+                );
+                $this->log->write('Coinbase Commerce: payment status updated');
+            } else {
+                $this->log->write('Coinbase Commerce: Unknown payment status');
             }
         }
 
@@ -183,5 +192,13 @@ class ControllerExtensionPaymentCoinbase extends Controller
             //return $response;
 
         return $response;
+    }
+
+    public function authenticate($payload)
+    {
+        $key = $this->config->get('payment_coinbase_api_secret');
+        $headerSignature = $this->getRequest()->getHeader('X-CC-Webhook-Signature');
+        $computedSignature = hash_hmac('sha256', $payload, $key);
+        return $headerSignature === $computedSignature;
     }
 }
