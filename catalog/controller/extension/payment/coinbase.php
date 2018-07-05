@@ -1,8 +1,5 @@
 <?php
 
-require_once(DIR_SYSTEM . 'library/coinbase/coinbaseclient/init.php');
-require_once(DIR_SYSTEM . 'library/coinbase/coinbase_version.php');
-
 class ControllerExtensionPaymentCoinbase extends Controller
 {
 
@@ -26,63 +23,40 @@ class ControllerExtensionPaymentCoinbase extends Controller
         $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
         $secret_key = md5(uniqid(rand(), true));
 
-        $total = $order_info['total'] * $this->currency->getvalue($order_info['currency_code']);
-        $items = $this->model_extension_payment_coinbase->getOrderItems($this->cart->getProducts(), $order_info);
-        $shipping = isset($this->session->data['shipping_method']['cost']) ? $this->session->data['shipping_method']['cost'] : 0;
-        $discount = 0.00;
+        //Pricing
+        $pricing["amount"] = $order_info['total'];
+        $pricing["currency"] = $order_info['currency_code'];
 
-        $order_totals = $this->model_checkout_order->getOrderTotals($order_info['order_id']);
-        if ($order_totals && count($order_totals) > 0) {
-            foreach ($order_totals as $key => $order_total) {
-                if ($order_total['code'] == 'coupon') {
-                    $discount += $order_total['value'] < 0 ? abs($order_total['value']) : $order_total['value'];
-                }
-            }
-        }
+        //Metadata attached with Charge
+        $metaData["id"] = $order_info['customer_id'];
+        $metaData["customer_name"] = $order_info['firstname'] . " " . $order_info['lastname'];
+        $metaData["customer_email"] = $order_info['email'];
+        $metaData["store_increment_id"] = $order_info['order_id'];
 
-        $tbcClient = new \CoinBaseClient\CoinBaseClient(
-            array(
-                'project_id' => $this->config->get('payment_coinbase_project_id'),
-                'api_key' => $this->config->get('payment_coinbase_api_key'),
-                'api_secret' => $this->config->get('payment_coinbase_api_secret'),
-                'env' => $this->config->get('payment_coinbase_api_test_mode') == 1 ? 'test' : 'live',
-                'user_agent' =>
-                    'CoinBase OpenCart Extension: ' . COINBASE_OPENCART_EXTENSION_VERSION . '/' . 'OpenCart: ' . VERSION
-            )
-        );
+        //Json Data Curl Request
+        $data = json_encode([
+            "name" => $order_info['store_name'],
+            "description" => "Purchased through Coinbase Commerce",
+            "local_price" => $pricing,
+            "pricing_type" => "fixed_price",
+            "metadata" => $metaData,
+            "redirect_url" => $this->url->link('extension/payment/coinbase/redirect', array('tbc_secret_key' => $secret_key), true),
+        ]);
 
-        $payment = $tbcClient->addPayment(
-            array(
-                'order_id' => $order_info['order_id'],
-                'currency' => $order_info['currency_code'],
-                'amount' => number_format($total, 6, '.', ''),
-                'items_amount' => number_format($this->cart->getSubTotal(), 6, '.', ''),
-                'shipping_amount' => number_format($shipping, 6, '.', ''),
-                'discount_amount' => number_format($discount, 6, '.', ''),
-                'buyer_email' => $order_info['email'] ? $order_info['email'] : '',
-                'callback_url' =>
-                    html_entity_decode($this->url->link('extension/payment/coinbase/callback', array('tbc_secret_key' => $secret_key), true), ENT_QUOTES, 'UTF-8'),
-                'complete_url' =>
-                    html_entity_decode($this->url->link('extension/payment/coinbase/complete', array('tbc_secret_key' => $secret_key), true), ENT_QUOTES, 'UTF-8'),
-                'cancel_url' => $this->url->link('extension/payment/coinbase/cancel', '', true),
-                'items' => $items ? $items : false
-            )
-        );
-
-        if ($payment && isset($payment['data'])
-            && !empty($payment['data'])
-            && $payment['data']['payment_url']
-            && $payment['data']['payment_status'] == 'awaiting_payment'
-        ) {
-            $this->model_extension_payment_coinbase->addOrder(array(
-                'order_id' => $order_info['order_id'],
-                'secret_key' => $secret_key,
-                'coinbase_payment_id' => $payment['data']['id']
-            ));
-            $this->model_checkout_order->addOrderHistory($order_info['order_id'], $this->config->get('payment_coinbase_order_status_id'));
-            $this->response->redirect($payment['data']['payment_url']);
+        //Send Curl Request
+        $result = $this->getCurlResponse($data);
+        //var_dump($result);
+       //exit();
+        if($result) {
+        $this->model_extension_payment_coinbase->addOrder(array(
+            'order_id' => $order_info['order_id'],
+            'secret_key' => $secret_key,
+            'coinbase_payment_id' => $result['data']['code']
+        ));
+        $this->model_checkout_order->addOrderHistory($order_info['order_id'], $this->config->get('payment_coinbase_order_status_id'));
+        $this->response->redirect($result['data']['hosted_url']);
         } else {
-            $this->log->write("Order #" . $order_info['order_id'] . " is not valid.");
+            $this->log->write("Order #" . $order_info['order_id'] . " is not valid. Please check Coinbase Commerce API request logs.");
             $this->response->redirect($this->url->link('checkout/checkout', '', true));
         }
     }
@@ -104,6 +78,11 @@ class ControllerExtensionPaymentCoinbase extends Controller
         } else {
             $this->response->redirect($this->url->link('checkout/success', '', true));
         }
+    }
+
+    public function redirect()
+    {
+        $this->response->redirect($this->url->link('checkout/cart', ''));
     }
 
     public function callback()
@@ -184,5 +163,38 @@ class ControllerExtensionPaymentCoinbase extends Controller
         }
 
         $this->response->addHeader('HTTP/1.1 200 OK');
+    }
+
+    public function getJsonHeaders()
+    {
+        $apiKey = $this->config->get('payment_coinbase_api_key');
+        $headers["Content-Type"] = "application/json";
+        $headers["X-CC-Api-Key"] = $apiKey;
+        $headers["X-CC-Version"] = "2018-07-04";
+
+        return $headers;
+    }
+
+    public function getCurlResponse($data)
+    {
+        $headers   = array();
+        $headers[] = $this->getJsonHeaders();
+
+        $curl = curl_init('https://api.commerce.coinbase.com/charges/');
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
+                'Content-Type: application/json',
+                'X-CC-Api-Key: ' . $this->config->get('payment_coinbase_api_key'),
+                'X-CC-Version: 2018-03-22')
+        );
+        $response = json_decode(curl_exec($curl), TRUE);
+
+        //$http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        //if ($http_status === 200)
+            //return $response;
+
+        return $response;
     }
 }
