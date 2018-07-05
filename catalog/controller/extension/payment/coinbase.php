@@ -165,21 +165,8 @@ class ControllerExtensionPaymentCoinbase extends Controller
         $this->response->addHeader('HTTP/1.1 200 OK');
     }
 
-    public function getJsonHeaders()
-    {
-        $apiKey = $this->config->get('payment_coinbase_api_key');
-        $headers["Content-Type"] = "application/json";
-        $headers["X-CC-Api-Key"] = $apiKey;
-        $headers["X-CC-Version"] = "2018-07-04";
-
-        return $headers;
-    }
-
     public function getCurlResponse($data)
     {
-        $headers   = array();
-        $headers[] = $this->getJsonHeaders();
-
         $curl = curl_init('https://api.commerce.coinbase.com/charges/');
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
