@@ -34,7 +34,7 @@ class ModelExtensionPaymentCoinbase extends Model
 
         if ($status) {
             $method_data = array(
-                'code' => 'Coinbase Commerce',
+                'code' => 'coinbase',
                 'title' => $this->language->get('text_title'),
                 'terms' => '',
                 'sort_order' => $this->config->get('payment_coinbase_sort_order')
