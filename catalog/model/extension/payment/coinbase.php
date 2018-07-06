@@ -4,7 +4,7 @@ class ModelExtensionPaymentCoinbase extends Model
 {
     public function addOrder($data)
     {
-        $this->db->query("INSERT INTO `" . DB_PREFIX . "coinbase_commerce_order` SET `store_order_id` = '" . (int)$data['store_order_id'] . "', `store_total_amount` = '" . $this->db->escape($data['store_total_amount']) . "', `coinbase_commerce_charge_code` = '" . $this->db->escape($data['payment_coinbase_charge_code']) . "', `coinbase_commerce_status` = '" . $this->db->escape($data['payment_coinbase_status']) . "'");
+        $this->db->query("INSERT INTO `" . DB_PREFIX . "coinbase_commerce_order` SET `store_order_id` = '" . (int)$data['store_order_id'] . "', `store_total_amount` = '" . $this->db->escape($data['store_total_amount']) . "', `coinbase_commerce_charge_code` = '" . $this->db->escape($data['coinbase_commerce_charge_code']) . "'");
     }
 
     public function getOrder($order_id)

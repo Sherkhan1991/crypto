@@ -45,8 +45,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
 
         //Receive Curl Response
         $result = $this->getCurlResponse($data);
-        //var_dump($result);
-       //exit();
+
         if($result) {
 
             //Fetch Expected Price
@@ -55,7 +54,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
             'store_total_amount' => $order_info['total'],
             'coinbase_commerce_charge_code' => $result['data']['code'],
             //'coinbase_commerce_transaction_id' => $result['payments']['transaction_id'],
-            'coinbase_commerce_status' => $result['timeline']['status']
+            //'coinbase_commerce_status' => $result['timeline']['status']
             //'coinbase_commerce_coins_expected' => $result['data']['pricing']['amount'], //Need to add logic after pricing
             //'coinbase_commerce_coins_received' => $result['payments']['value']['local']['amount'],
             //'coinbase_commerce_received_currency' => $result['payments']['value']['local']['currency']
