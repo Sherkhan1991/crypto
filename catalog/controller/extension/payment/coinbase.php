@@ -135,6 +135,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
                 $order_status = 'coinbase_created_status_id';  //Pending
                 $data['store_order_id'] = $data['incrementId'];
                 $data['fields']['coinbase_commerce_status'] = $data['coinbaseStatus'];
+                $this->model_extension_payment_coinbase->updateOrder($data);
             } elseif ($status == 'COMPLETED' && $event == 'charge:confirmed') {
                 $order_status = 'coinbase_completed_status_id';  //Processing
             } elseif ($status == 'RESOLVED') {
@@ -193,21 +194,13 @@ class ControllerExtensionPaymentCoinbase extends Controller
         $computedSignature = hash_hmac('sha256', $payload, $key);
         return $headerSignature === $computedSignature;
     }
-
+/*
     public function test()
     {
         $this->load->model('extension/payment/coinbase');
-
         $data['store_order_id'] = 27;
         $data['fields']['coinbase_commerce_status'] = 'PENDING';
-        //$this->model_extension_payment_coinbase->updateOrder($data);
-
-        //Test the Query Here Before implement in updateOrder Function
-        $DB_PREFIX = "Oc_" ;
-        $key = "keys";
-        $value = 123;
-        $query = "UPDATE `" . $DB_PREFIX . "coinbase_commerce_order` SET ` " . $key . " ` = '" . $value . "' WHERE `store_order_id` =" . $data['store_order_id'];
-        print_r($query);
-
+        $this->model_extension_payment_coinbase->updateOrder($data);
     }
+*/
 }
