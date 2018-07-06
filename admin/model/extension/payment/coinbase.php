@@ -11,7 +11,7 @@ class ModelExtensionPaymentCoinbase extends Model
 	        	`store_total_amount` FLOAT NOT NULL,	        	
 	        	`coinbase_commerce_charge_code` VARCHAR(50) NOT NULL,
 	        	`coinbase_commerce_transaction_id` VARCHAR(100),
-	        	`coinbase_commerce_status` TEXT NOT NULL,
+	        	`coinbase_commerce_status` TEXT,
 	        	`coinbase_commerce_coins_expected` FLOAT,	        	
 	        	`coinbase_commerce_coins_received` FLOAT,
 	        	`coinbase_commerce_received_currency` TEXT NOT NULL,
