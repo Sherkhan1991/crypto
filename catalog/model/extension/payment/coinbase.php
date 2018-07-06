@@ -14,6 +14,14 @@ class ModelExtensionPaymentCoinbase extends Model
         return $query->row;
     }
 
+    public function updateOrder($data)
+    {
+        foreach($data['fields'] as $key => $value) {
+            echo "{$key} => {$value} ";
+            $this->db->query( "UPDATE `" . DB_PREFIX . "coinbase_commerce_order` SET `" . $key . "` = '" . $value . "' WHERE `store_order_id` = " . $data['store_order_id']);
+        }
+    }
+
     public function getMethod($address, $total)
     {
         $this->load->language('extension/payment/coinbase');
