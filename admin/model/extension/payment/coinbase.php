@@ -31,7 +31,7 @@ class ModelExtensionPaymentCoinbase extends Model
         $settings['coinbase_commerce_total'] = 30;
         $settings['coinbase_commerce_sort_order'] = 0;
 
-        $this->model_setting_setting->editSetting('coinbase_commerce', $settings);
+        $this->model_setting_setting->editSetting('payment_coinbase', $settings);
     }
 
     public function uninstall()

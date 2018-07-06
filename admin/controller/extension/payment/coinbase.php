@@ -14,7 +14,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
         $this->load->model('localisation/geo_zone');
 
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            $this->model_setting_setting->editSetting('coinbase_commerce', $this->request->post);
+            $this->model_setting_setting->editSetting('payment_coinbase', $this->request->post);
             $this->session->data['success'] = $this->language->get('text_success');
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
         }
@@ -57,7 +57,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
         );
 
         $fields = array(
-            'coinbase_commerce_extension_status',
+            'payment_coinbase_status',
             'coinbase_commerce_api_key',
             'coinbase_commerce_api_secret',
             'coinbase_commerce_api_test_mode',
