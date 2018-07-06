@@ -22,14 +22,14 @@ class ModelExtensionPaymentCoinbase extends Model
         $this->load->model('setting/setting');
 
         $settings = array();
-        $settings['coinbase_commerce_api_test_mode'] = 0;
-        $settings['coinbase_commerce_order_status_id'] = 1;
-        $settings['coinbase_commerce_completed_status_id'] = 2;
-        $settings['coinbase_commerce_resolved_status_id'] = 5;
-        $settings['coinbase_commerce_unresolved_status_id'] = 8;
-        $settings['coinbase_commerce_expired_status_id'] = 14;
-        $settings['coinbase_commerce_total'] = 30;
-        $settings['coinbase_commerce_sort_order'] = 0;
+        $settings['payment_coinbase_api_test_mode'] = 0;
+        $settings['payment_coinbase_order_status_id'] = 1;
+        $settings['payment_coinbase_completed_status_id'] = 2;
+        $settings['payment_coinbase_resolved_status_id'] = 5;
+        $settings['payment_coinbase_unresolved_status_id'] = 8;
+        $settings['payment_coinbase_expired_status_id'] = 14;
+        $settings['payment_coinbase_total'] = 30;
+        $settings['payment_coinbase_sort_order'] = 0;
 
         $this->model_setting_setting->editSetting('payment_coinbase', $settings);
     }
