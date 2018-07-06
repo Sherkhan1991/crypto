@@ -60,7 +60,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
             //'coinbase_commerce_coins_received' => $result['payments']['value']['local']['amount'],
             //'coinbase_commerce_received_currency' => $result['payments']['value']['local']['currency']
         ));
-        $this->model_checkout_order->addOrderHistory($order_info['order_id'], $this->config->get('coinbase_commerce_order_status_id'));
+        $this->model_checkout_order->addOrderHistory($order_info['order_id'], $this->config->get('payment_coinbase_order_status_id'));
             //var_dump($result);
             //exit();
         $this->response->redirect($result['data']['hosted_url']);
