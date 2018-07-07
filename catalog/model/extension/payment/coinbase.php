@@ -9,7 +9,7 @@ class ModelExtensionPaymentCoinbase extends Model
 
     public function getOrder($order_id)
     {
-        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "coinbase_commerce_order` WHERE `store_order_id` = '" . (int)store_order_id . "' LIMIT 1");
+        $query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "coinbase_commerce_order` WHERE `store_order_id` = '" . (int)$order_id . "' LIMIT 1");
 
         return $query->row;
     }
@@ -18,7 +18,7 @@ class ModelExtensionPaymentCoinbase extends Model
     {
         foreach($data['fields'] as $key => $value) {
             //echo "{$key} => {$value} ";
-            $this->db->query( "UPDATE `" . DB_PREFIX . "coinbase_commerce_order` SET `" . $key . "` = '" . $value . "' WHERE `store_order_id` = " . $data['store_order_id']);
+            $this->db->query( "UPDATE `" . DB_PREFIX . "coinbase_commerce_order` SET `" . $key . "` = '" . $value . "' WHERE `store_order_id` = " . $this->db->escape($data['store_order_id']));
         }
     }
 
