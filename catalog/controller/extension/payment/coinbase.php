@@ -96,23 +96,27 @@ class ControllerExtensionPaymentCoinbase extends Controller
     public function callback()
     {
         //Read Input
-        $input = $this->file->read('php://input');
+        $input = file_get_contents('php://input');
 
         if (!$this->authenticate($input)) {
+            $this->log->write("Authentication Failed");
             return null;
         }
+        //$this->log->write("Authentication");
 
         //Retrieve Order Details
         $jsonInput = json_decode($input);
+        //$this->log->write("jsonInput " . $input);
 
         $data['incrementId'] = $jsonInput->event->data->metadata->store_increment_id;
         $data['chargeCode'] = $jsonInput->event->data->code;
         $data['type'] = $jsonInput->event->type;
         $data['timeline'] = end($jsonInput->event->data->timeline);
         $data['coinbaseStatus'] = end($jsonInput->event->data->timeline)->status;
+        $data['coinbaseContext'] = isset(end($jsonInput->event->data->timeline)->context) ? end($jsonInput->event->data->timeline)->context : "" ;
         $data['coinbasePayment'] = reset($jsonInput->event->data->payments);
         $data['eventDataNode'] = $jsonInput->event->data;
-
+        //$this->log->write('Data '. implode(" ", $data));
         $this->load->model('checkout/order');
         $this->load->model('extension/payment/coinbase');
 
@@ -127,28 +131,29 @@ class ControllerExtensionPaymentCoinbase extends Controller
 
         if ($order_info && $coinbase_order) {
             //Replace with authentication
-
+            $this->log->write("Order Validated");
             $status = $data['coinbaseStatus']; // COMPLETED etc
             $event = $data['type']; //Charge: Created/ etc
-            $order_status = NULL;
+            $order_status = '';
+            $status_message = '';
             if ($status == 'NEW' && $event == 'charge:created') {
                 $order_status = 'coinbase_created_status_id';  //Pending
                 $data['store_order_id'] = $data['incrementId'];
                 $data['fields']['coinbase_commerce_status'] = $data['coinbaseStatus'];
                 $this->model_extension_payment_coinbase->updateOrder($data);
+                $status_message .= 'Status UPdated';
             } elseif ($status == 'COMPLETED' && $event == 'charge:confirmed') {
                 $order_status = 'coinbase_completed_status_id';  //Processing
             } elseif ($status == 'RESOLVED') {
                 $order_status = 'coinbase_resolved_status_id'; //Complete
             } elseif ($status == 'UNRESOLVED') {
                 $order_status = 'coinbase_unresolved_status_id'; //Denied
-                $context = $data['timeline']->context;
+                $status_message = $status_message . $data['coinbaseContext'];
             } elseif ($event == 'charge:failed' && $status == 'EXPIRED') {
                 $order_status = 'coinbase_expired_status_id'; //Expired
-                $context = $data['timeline']->context;
+                $status_message .= 'Status' . $data['coinbaseContext'];
             }
 
-            $status_message = 'Coinbase: Payment ' . $data['coinbaseStatus'] . isset($context) ? $context : ''  ;
             $this->log->write('Coinbase Commerce: Order Status ' . $order_status);
             $this->log->write('Coinbase Commerce: Status Message ' . $status_message);
 
