@@ -156,7 +156,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
             }
 
             $this->log->write('Coinbase Commerce: Order Status ' . $order_status);
-            $this->log->write('Coinbase Commerce: Status Message ' . $status_message);
+            $this->log->write('Coinbase Commerce: ' . $status_message);
 
             if ($order_status) {
                 $this->model_checkout_order->addOrderHistory(
@@ -201,10 +201,10 @@ class ControllerExtensionPaymentCoinbase extends Controller
         $computedSignature = hash_hmac('sha256', $payload, $key);
         return $headerSignature === $computedSignature;
     }
-    
+
     public function testCallback() {
         //Dummy Response Data
-        $order = 65;
+        $order = 39;
         $charge = 'XYEA5C8N';
         $new = '{"attempt_number":1,"event":{"api_version":"2018-03-22","created_at":"2018-05-25T07:20:56Z","data":{"code":"' . $charge . '","name":"Your Store","pricing":{"local":{"amount":"131.20","currency":"USD"},"bitcoin":{"amount":"0.00000270","currency":"BTC"},"ethereum":{"amount":"0.000034000","currency":"ETH"},"litecoin":{"amount":"0.00016785","currency":"LTC"},"bitcoincash":{"amount":"0.00001993","currency":"BCH"}},"metadata":{"id":"0","customer_name":"Mr.tester Amin","customer_email":"arslanaziz@appsgenii.eu","store_increment_id":"' . $order .'"},"payments":[],"timeline":[{"time":"2018-05-25T07:20:55Z","status":"NEW"}],"addresses":{"bitcoin":"14Me4JXRQ7fK7XFLLL1LMwUQ5KXczfPXKR","ethereum":"0x1054e2f85cb4150e257dc1bad075faa8791064b3","litecoin":"LUVzEJSzYDwsMu7ddyayKarpzxmqEKr5SN","bitcoincash":"qqefm48ttp8hl2rn02ldkt9yttusssfd2q5cjaq343"},"created_at":"2018-05-25T07:20:55Z","expires_at":"2018-05-25T07:35:55Z","hosted_url":"https://commerce.coinbase.com/charges/ZWJGYHBL","description":"Purchased through Coinbase Commerce","pricing_type":"fixed_price","redirect_url":"http://coinbase.stagingbuilds.com/coinbasecommerce/webhook/redirect/"},"id":"9e6d3666-389b-4b64-93ec-0928ba710a4f","type":"charge:created"},"id":"c3ad5df4-d054-4bfd-b3a8-023579527c79","scheduled_for":"2018-05-25T07:20:56Z"}';
         $underPaid = '{   "attempt_number": 1,   "event": {     "api_version": "2018-03-22",     "created_at": "2018-05-25T07:20:56Z",     "data": {       "code": "'. $charge  .'",       "name": "Your Store",       "pricing": {         "local": {           "amount": "131.20",           "currency": "USD"         },         "bitcoin": {           "amount": "0.00000270",           "currency": "BTC"         },         "ethereum": {           "amount": "0.000034000",           "currency": "ETH"         },         "litecoin": {           "amount": "0.00016785",           "currency": "LTC"         },         "bitcoincash": {           "amount": "0.00001993",           "currency": "BCH"         }       },       "metadata": {         "id": "0",         "customer_name": "Mr.tester Amin",         "customer_email": "arslanaziz@appsgenii.eu",         "store_increment_id":"'. $order  .'"       },       "payments": [                ],       "timeline": [         {           "time": "2018-05-25T07:20:55Z",           "status": "UNRESOLVED",           "context": "UNDERPAID"         }       ],       "addresses": {         "bitcoin": "14Me4JXRQ7fK7XFLLL1LMwUQ5KXczfPXKR",         "ethereum": "0x1054e2f85cb4150e257dc1bad075faa8791064b3",         "litecoin": "LUVzEJSzYDwsMu7ddyayKarpzxmqEKr5SN",         "bitcoincash": "qqefm48ttp8hl2rn02ldkt9yttusssfd2q5cjaq343"       },       "created_at": "2018-05-25T07:20:55Z",       "expires_at": "2018-05-25T07:35:55Z",       "hosted_url": "https://commerce.coinbase.com/charges/ZWJGYHBL",       "description": "Purchased through Coinbase Commerce",       "pricing_type": "fixed_price",       "redirect_url": "http://coinbase.stagingbuilds.com/coinbasecommerce/webhook/redirect/"     },     "id": "9e6d3666-389b-4b64-93ec-0928ba710a4f",     "type": "charge:failed"   },   "id": "c3ad5df4-d054-4bfd-b3a8-023579527c79",   "scheduled_for": "2018-05-25T07:20:56Z" }';
@@ -276,7 +276,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
             }
 
             $this->log->write('Coinbase Commerce: Order Status ' . $order_status);
-            $this->log->write('Coinbase Commerce: Status Message ' . $status_message);
+            $this->log->write('Coinbase Commerce: ' . $status_message);
 
             if ($order_status) {
                 $this->model_checkout_order->addOrderHistory(
