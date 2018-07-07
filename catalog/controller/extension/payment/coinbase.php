@@ -318,8 +318,6 @@ class ControllerExtensionPaymentCoinbase extends Controller
         print_r('Database Order Info <br/>');
         var_dump($coinbase_order);
         $this->updateRecord($data);
-        exit();
-
 
         if ($order_info && $coinbase_order) {
             //Replace with authentication
@@ -335,14 +333,14 @@ class ControllerExtensionPaymentCoinbase extends Controller
                 $this->model_extension_payment_coinbase->updateOrder($recordToUpdate);
                 $status_message .= 'Status UPdated';
             } elseif ($status == 'COMPLETED' && $event == 'charge:confirmed') {
-                $order_status = 'coinbase_completed_status_id';  //Processing
+                $order_status = 'payment_coinbase_completed_status_id';  //Processing
             } elseif ($status == 'RESOLVED') {
-                $order_status = 'coinbase_resolved_status_id'; //Complete
+                $order_status = 'payment_coinbase_resolved_status_id'; //Complete
             } elseif ($status == 'UNRESOLVED') {
-                $order_status = 'coinbase_unresolved_status_id'; //Denied
+                $order_status = 'payment_coinbase_unresolved_status_id'; //Denied
                 $status_message = $status_message . $data['coinbaseContext'];
             } elseif ($event == 'charge:failed' && $status == 'EXPIRED') {
-                $order_status = 'coinbase_expired_status_id'; //Expired
+                $order_status = 'payment_coinbase_expired_status_id'; //Expired
                 $status_message .= 'Status' . $data['coinbaseContext'];
             }
 
@@ -351,7 +349,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
 
             if ($order_status) {
                 $this->model_checkout_order->addOrderHistory(
-                    $order_id,
+                    $data['orderId'],
                     $this->config->get($order_status),
                     $status_message
                 );
