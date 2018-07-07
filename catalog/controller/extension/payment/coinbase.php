@@ -252,7 +252,24 @@ class ControllerExtensionPaymentCoinbase extends Controller
             echo 'Exception: ' .$e->getMessage();
         }
     }
-    
+
+    public function updateOrderHistory()
+    {
+        $this->load->model('checkout/order');
+        $this->load->model('extension/payment/coinbase');
+        $orderId = 39;
+        $order_status = 'payment_coinbase_unresolved_status_id';
+        $status_message = 'Status Updated';
+        var_dump($this->config);
+        print_r('Status Config Value' );
+        var_dump($this->config->get($order_status));
+        $this->model_checkout_order->addOrderHistory(
+            $orderId,
+            $this->config->get($order_status),
+            $status_message
+        );
+    }
+
     public function testCallback() {
         //Dummy Response Data
         $order = 39;
