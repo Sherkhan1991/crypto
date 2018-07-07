@@ -202,6 +202,57 @@ class ControllerExtensionPaymentCoinbase extends Controller
         return $headerSignature === $computedSignature;
     }
 
+    public function updateRecord($data){
+        $this->load->model('checkout/order');
+        $this->load->model('extension/payment/coinbase');
+
+        $order_info = $this->model_checkout_order->getOrder($data['orderId']);
+        $coinbase_order = $this->model_extension_payment_coinbase->getOrder($data['orderId']);
+
+        try {
+            if ($order_info && $coinbase_order) {
+                //Replace with authentication
+                $this->log->write("Order Validated");
+
+                $order_status = '';
+                $status_message = 'Status Updated ' . $data['coinbaseStatus'] . ' Type ' . $data['type'];
+
+                if ($data['coinbaseStatus'] == 'NEW' && $data['type'] == 'charge:created') {
+                    $order_status = 'coinbase_created_status_id';  //Pending
+                    $recordToUpdate['store_order_id'] = $data['incrementId'];
+                    $recordToUpdate['fields']['coinbase_commerce_status'] = $data['coinbaseStatus'];
+                    $this->model_extension_payment_coinbase->updateOrder($recordToUpdate);
+                } elseif ($data['coinbaseStatus'] == 'COMPLETED' && $data['type'] == 'charge:confirmed') {
+                    $order_status = 'payment_coinbase_completed_status_id';  //Processing
+                } elseif ($data['coinbaseStatus'] == 'RESOLVED') {
+                    $order_status = 'payment_coinbase_resolved_status_id'; //Complete
+                } elseif ($data['coinbaseStatus'] == 'UNRESOLVED') {
+                    $order_status = 'payment_coinbase_unresolved_status_id'; //Denied
+                    $status_message .= ' Context ' . $data['coinbaseContext'];
+                } elseif ($data['type'] == 'charge:failed' && $data['coinbaseStatus'] == 'EXPIRED') {
+                    $order_status = 'payment_coinbase_expired_status_id'; //Expired
+                    $status_message .= ' Context ' . $data['coinbaseContext'];
+                }
+
+                $this->log->write('Coinbase Commerce: Order Status ' . $order_status);
+                $this->log->write('Coinbase Commerce: ' . $status_message);
+
+                if ($order_status) {
+                    $this->model_checkout_order->addOrderHistory(
+                        $data['orderId'],
+                        $this->config->get($order_status),
+                        $status_message
+                    );
+                    $this->log->write('Coinbase Commerce: payment status updated');
+                } else {
+                    $this->log->write('Coinbase Commerce: Unknown payment status');
+                }
+            }
+        }catch(Exception $e) {
+            echo 'Exception: ' .$e->getMessage();
+        }
+    }
+    
     public function testCallback() {
         //Dummy Response Data
         $order = 39;
@@ -249,7 +300,10 @@ class ControllerExtensionPaymentCoinbase extends Controller
         $coinbase_order = $this->model_extension_payment_coinbase->getOrder($data['orderId']);
         print_r('Database Order Info <br/>');
         var_dump($coinbase_order);
+        $this->updateRecord($data);
         exit();
+
+
         if ($order_info && $coinbase_order) {
             //Replace with authentication
             $this->log->write("Order Validated");
