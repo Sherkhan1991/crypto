@@ -190,7 +190,7 @@ class ControllerExtensionPaymentCoinbase extends Controller
     public function authenticate($payload)
     {
         $key = $this->config->get('payment_coinbase_api_secret');
-        $headerSignature = $this->getRequest()->getHeader('X-CC-Webhook-Signature');
+        $headerSignature = $this->request->server['HTTP_X_CC_WEBHOOK_SIGNATURE'];
         $computedSignature = hash_hmac('sha256', $payload, $key);
         return $headerSignature === $computedSignature;
     }
