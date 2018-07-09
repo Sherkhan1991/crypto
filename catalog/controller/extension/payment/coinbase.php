@@ -205,6 +205,10 @@ class ControllerExtensionPaymentCoinbase extends Controller
                         $this->config->get($order_status),
                         $status_message
                     );
+
+                    //Send Email
+                    $this->sendEmail($order_info['email'], $status_message);
+
                     $this->log->write('Coinbase Commerce: payment status updated');
                 } else {
                     $this->log->write('Coinbase Commerce: Unknown payment status');
@@ -235,8 +239,8 @@ class ControllerExtensionPaymentCoinbase extends Controller
 */
     public function testCallback() {
         //Dummy Response Data
-        $order = 67;
-        $charge = 'RA3FWGN2';
+        $order = 69;
+        $charge = 'VGLEWVWB';
         //$rawPost = '{"attempt_number":1,"event":{"api_version":"2018-03-22","created_at":"2018-07-09T09:14:56Z","data":{"code":"LW3VFDGG","name":"Your Store","pricing":{"local":{"amount":"131.20","currency":"USD"},"bitcoin":{"amount":"0.01956126","currency":"BTC"},"ethereum":{"amount":"0.272315000","currency":"ETH"},"litecoin":{"amount":"1.60912492","currency":"LTC"},"bitcoincash":{"amount":"0.17565586","currency":"BCH"}},"metadata":{"id":"0","customer_name":"Mr.tester Amin","customer_email":"arslanaziz@appsgenii.eu","store_increment_id":"66"},"payments":[{"block":{"hash":"000000000000000000ecc881ef4a2b878dc5aa32a057a740628243ce2db45d31","height":531719,"confirmations":0,"confirmations_required":1},"value":{"local":{"amount":"0.02","currency":"USD"},"crypto":{"amount":"0.00001993","currency":"BCH"}},"status":"CONFIRMED","network":"bitcoincash","transaction_id":"df76f01aec7d3547f67792b6b1b3f281df58c4fbd22537867f66770857571e28"}],"timeline":[{"time":"2018-07-09T09:14:55Z","status":"COMPLETED"}],"addresses":{"bitcoin":"1CZjuiC63osQDUKsPGQmZRoHubakp2ZeHr","ethereum":"0xa319011207eaf4726f73a2989a773bc22fe36ecd","litecoin":"LMQCT41ffDh9Ymt8sEcxZ6DMyq6GjqnvVy","bitcoincash":"qr7qj5t07wslwt66gjulrn00daq2lwhamcghx8wrp2"},"created_at":"2018-07-09T09:14:55Z","expires_at":"2018-07-09T09:29:55Z","hosted_url":"https://commerce.coinbase.com/charges/LW3VFDGG","description":"Purchased through Coinbase Commerce","pricing_type":"fixed_price","redirect_url":"http://opencart.stagingbuilds.com/index.php?route=extension/payment/coinbase/redirect&orderId=$order_info[\"order_id\"]&amp;1"},"id":"0a63937f-d292-4bb3-bc40-c16df1c2bc3a","type":"charge:confirmed"},"id":"9db32709-7a8b-45b0-a092-099626ea454a","scheduled_for":"2018-07-09T09:14:56Z"}';
         $new = '{"attempt_number":1,"event":{"api_version":"2018-03-22","created_at":"2018-05-25T07:20:56Z","data":{"code":"' . $charge . '","name":"Your Store","pricing":{"local":{"amount":"131.20","currency":"USD"},"bitcoin":{"amount":"0.00000270","currency":"BTC"},"ethereum":{"amount":"0.000034000","currency":"ETH"},"litecoin":{"amount":"0.00016785","currency":"LTC"},"bitcoincash":{"amount":"0.00001993","currency":"BCH"}},"metadata":{"id":"0","customer_name":"Mr.tester Amin","customer_email":"arslanaziz@appsgenii.eu","store_increment_id":"' . $order .'"},"payments":[],"timeline":[{"time":"2018-05-25T07:20:55Z","status":"NEW"}],"addresses":{"bitcoin":"14Me4JXRQ7fK7XFLLL1LMwUQ5KXczfPXKR","ethereum":"0x1054e2f85cb4150e257dc1bad075faa8791064b3","litecoin":"LUVzEJSzYDwsMu7ddyayKarpzxmqEKr5SN","bitcoincash":"qqefm48ttp8hl2rn02ldkt9yttusssfd2q5cjaq343"},"created_at":"2018-05-25T07:20:55Z","expires_at":"2018-05-25T07:35:55Z","hosted_url":"https://commerce.coinbase.com/charges/ZWJGYHBL","description":"Purchased through Coinbase Commerce","pricing_type":"fixed_price","redirect_url":"http://coinbase.stagingbuilds.com/coinbasecommerce/webhook/redirect/"},"id":"9e6d3666-389b-4b64-93ec-0928ba710a4f","type":"charge:created"},"id":"c3ad5df4-d054-4bfd-b3a8-023579527c79","scheduled_for":"2018-05-25T07:20:56Z"}';
         $underPaid = '{   "attempt_number": 1,   "event": {     "api_version": "2018-03-22",     "created_at": "2018-05-25T07:20:56Z",     "data": {       "code": "'. $charge  .'",       "name": "Your Store",       "pricing": {         "local": {           "amount": "131.20",           "currency": "USD"         },         "bitcoin": {           "amount": "0.00000270",           "currency": "BTC"         },         "ethereum": {           "amount": "0.000034000",           "currency": "ETH"         },         "litecoin": {           "amount": "0.00016785",           "currency": "LTC"         },         "bitcoincash": {           "amount": "0.00001993",           "currency": "BCH"         }       },       "metadata": {         "id": "0",         "customer_name": "Mr.tester Amin",         "customer_email": "arslanaziz@appsgenii.eu",         "store_increment_id":"'. $order  .'"       },       "payments": [{"block":{"hash":"000000000000000000ecc881ef4a2b878dc5aa32a057a740628243ce2db45d31","height":531719,"confirmations":0,"confirmations_required":1},"value":{"local":{"amount":"0.02","currency":"USD"},"crypto":{"amount":"0.00001993","currency":"BCH"}},"status":"CONFIRMED","network":"bitcoincash","transaction_id":"df76f01aec7d3547f67792b6b1b3f281df58c4fbd22537867f66770857571e28"} ],       "timeline": [         {           "time": "2018-05-25T07:20:55Z",           "status": "UNRESOLVED",           "context": "UNDERPAID"         }       ],       "addresses": {         "bitcoin": "14Me4JXRQ7fK7XFLLL1LMwUQ5KXczfPXKR",         "ethereum": "0x1054e2f85cb4150e257dc1bad075faa8791064b3",         "litecoin": "LUVzEJSzYDwsMu7ddyayKarpzxmqEKr5SN",         "bitcoincash": "qqefm48ttp8hl2rn02ldkt9yttusssfd2q5cjaq343"       },       "created_at": "2018-05-25T07:20:55Z",       "expires_at": "2018-05-25T07:35:55Z",       "hosted_url": "https://commerce.coinbase.com/charges/ZWJGYHBL",       "description": "Purchased through Coinbase Commerce",       "pricing_type": "fixed_price",       "redirect_url": "http://coinbase.stagingbuilds.com/coinbasecommerce/webhook/redirect/"     },     "id": "9e6d3666-389b-4b64-93ec-0928ba710a4f",     "type": "charge:failed"   },   "id": "c3ad5df4-d054-4bfd-b3a8-023579527c79",   "scheduled_for": "2018-05-25T07:20:56Z" }';
@@ -284,6 +288,26 @@ class ControllerExtensionPaymentCoinbase extends Controller
         //Included - End
 
         $this->updateRecord($data);
+    }
+
+    public function sendEmail($email_to, $message){
+
+        $subject = "Coinbase Commerce Order Status Email";
+        print_r($this->config->get('config_mail_smtp_password'));
+        $mail = new Mail($this->config->get('config_mail_engine'));
+        $mail->parameter = $this->config->get('config_mail_parameter');
+        $mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');
+        $mail->smtp_username = $this->config->get('config_mail_smtp_username');
+        $mail->smtp_password = html_entity_decode($this->config->get('config_mail_smtp_password'), ENT_QUOTES, 'UTF-8');
+        $mail->smtp_port = $this->config->get('config_mail_smtp_port');
+        $mail->smtp_timeout = $this->config->get('config_mail_smtp_timeout');
+
+        $mail->setTo($email_to);
+        $mail->setFrom($this->config->get('config_email'));
+        $mail->setSender(html_entity_decode($this->config->get('config_name'), ENT_QUOTES, 'UTF-8'));
+        $mail->setSubject($subject);
+        $mail->setText($message);
+        $mail->send();
     }
 /*
     public function test()
