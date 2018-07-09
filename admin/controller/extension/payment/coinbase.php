@@ -19,8 +19,12 @@ class ControllerExtensionPaymentCoinbase extends Controller
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
         }
 
+        //Callback Url
+        $callbackUrl = $this->url->link('extension/payment/coinbase/callback', '', true);
+
         $data['action'] = $this->url->link('extension/payment/coinbase', 'user_token=' . $this->session->data['user_token'], true);
         $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
+        $data['callback_url'] = str_replace('admin/', '', $callbackUrl);
         $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
         $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
 

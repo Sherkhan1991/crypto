@@ -20,6 +20,7 @@ $_['text_coinbase'] = '<a href="https://commerce.coinbase.com/" target="_blank" 
 
 $_['entry_status'] = 'Payment Method Enabled';
 $_['entry_api_test_mode'] = 'Test Mode';
+$_['entry_api_callback'] = 'Callback Url';
 $_['entry_api_key'] = 'API Key';
 $_['entry_api_secret'] = 'API Secret';
 $_['entry_total'] = 'Total';
@@ -36,7 +37,7 @@ $_['help_api_key'] = 'Please enter your Coinbase Commerce API Key.';
 $_['help_api_secret'] = 'Please enter your Coinbase Commerce API Secret.';
 $_['help_total'] = 'The checkout total the order must reach before this payment method becomes active.';
 $_['help_api_test_mode'] = 'You can use Coinbase Commerce test API. Find out more about the <a href="https://commerce.coinbase.com/docs/api/" target="_blank">Coinbase Commerce test API</a>.';
-
+$_['help_api_callback'] = 'Paste above url in Settings > Webhook subscriptions > Add an endpoint (Only https Callback Url allowed)';
 $_['error_permission'] = 'Warning: You do not have permission to modify Coinbase Commerce!';
 $_['error_project_id'] = 'Coinbase Commerce Project ID Required.';
 $_['error_api_key'] = 'Coinbase Commerce API Key Required.';
