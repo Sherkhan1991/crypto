@@ -18,6 +18,7 @@
 !/admin/language/en-gb/extension/payment/coinbase.php
 !/admin/model/extension/payment/coinbase.php
 !/admin/view/template/extension/payment/coinbase.twig
+!/admin/view/image/payment/Coinbase.png
 
 !/catalog/controller/extension/payment/coinbase.php
 !/catalog/language/en-gb/extension/payment/coinbase.php
